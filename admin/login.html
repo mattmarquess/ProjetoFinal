@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área Administrativa - Banco de Sangue</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+    <div class="admin-container">
+        <div class="login-box">
+            <a href="../index.html" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Voltar para Home
+            </a>
+            <div class="login-header">
+                <div class="icon-container">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h1>Área Administrativa</h1>
+                <p>Sistema de Gestão do Banco de Sangue</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" required placeholder="Seu e-mail">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="senha" name="senha" required placeholder="Sua senha">
+                        <i class="fas fa-eye toggle-password"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="login-button">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Entrar
+                    </button>
+                </div>
+                <div class="form-footer">
+                    <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

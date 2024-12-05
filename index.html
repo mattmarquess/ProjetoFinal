@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco de Sangue - Sistema de Doação</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1>Banco de Sangue</h1>
+            </div>
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#sobre">Sobre Doação</a></li>
+                <li><a href="#requisitos">Requisitos</a></li>
+                <li><a href="#agendamento">Agendar Doação</a></li>
+                <li><a href="#campanhas">Campanhas</a></li>
+                <li><a href="#contato">Contato</a></li>
+                <li><a href="admin/login.html" class="btn-login"><i class="fas fa-user"></i> Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h2>Doe Sangue, Salve Vidas</h2>
+                <p class="hero-subtitle">Sua doação pode fazer a diferença na vida de alguém</p>
+                <div class="hero-buttons">
+                    <a href="#agendamento" class="cta-button">Agendar Doação</a>
+                    <a href="#sobre" class="secondary-button">Saiba Mais</a>
+                </div>
+            </div>
+            <div class="hero-overlay"></div>
+        </section>
+
+        <section id="sobre" class="about">
+            <div class="container">
+                <h2>Sobre a Doação de Sangue</h2>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <i class="fas fa-heart"></i>
+                        <h3>Por que doar?</h3>
+                        <p>A doação de sangue é um ato de solidariedade que pode salvar até 4 vidas com uma única doação.</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-clock"></i>
+                        <h3>Tempo do Processo</h3>
+                        <p>Todo o processo leva cerca de 40 minutos, sendo a doação em si apenas 10 minutos.</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-sync-alt"></i>
+                        <h3>Intervalo entre Doações</h3>
+                        <p>Homens podem doar a cada 2 meses, até 4 vezes ao ano. Mulheres podem doar a cada 3 meses, até 3 vezes ao ano.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="requisitos" class="requirements">
+            <div class="container">
+                <h2>Requisitos para Doação</h2>
+                <div class="requirements-list">
+                    <ul>
+                        <li><i class="fas fa-check"></i> Ter entre 16 e 69 anos</li>
+                        <li><i class="fas fa-check"></i> Pesar mais de 50kg</li>
+                        <li><i class="fas fa-check"></i> Estar bem de saúde</li>
+                        <li><i class="fas fa-check"></i> Estar alimentado</li>
+                        <li><i class="fas fa-check"></i> Apresentar documento oficial com foto</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="agendamento" class="scheduling">
+            <div class="container">
+                <h2>Agende sua Doação</h2>
+                <div class="scheduling-form">
+                    <form id="donationForm">
+                        <div class="form-group">
+                            <input type="text" id="nome" placeholder="Nome Completo" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" placeholder="E-mail" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="telefone" placeholder="Telefone" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="date" id="data" required>
+                        </div>
+                        <div class="form-group">
+                            <select id="horario" required>
+                                <option value="">Selecione um horário</option>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="submit-button">Agendar Doação</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section id="campanhas" class="campaigns">
+            <div class="container">
+                <h2>Campanhas Atuais</h2>
+                <div class="campaign-cards">
+                    <div class="campaign-card urgent">
+                        <div class="campaign-header">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>Urgente: Tipo O-</h3>
+                        </div>
+                        <p>Estoque crítico. Precisamos de doadores com urgência!</p>
+                        <a href="#agendamento" class="campaign-button">Doar Agora</a>
+                    </div>
+                    <div class="campaign-card">
+                        <div class="campaign-header">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Junho Vermelho</h3>
+                        </div>
+                        <p>Mês de conscientização sobre a doação de sangue.</p>
+                        <a href="#sobre" class="campaign-button">Saiba Mais</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contato" class="contact">
+            <div class="container">
+                <h2>Entre em Contato</h2>
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <i class="fas fa-phone"></i>
+                        <h3>Telefone</h3>
+                        <p>(XX) XXXX-XXXX</p>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3>E-mail</h3>
+                        <p>contato@bancodesangue.com</p>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h3>Endereço</h3>
+                        <p>Rua Example, 123 - Cidade</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Banco de Sangue. Todos os direitos reservados. | <a href="admin/login.html" class="admin-link">Área Administrativa</a></p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

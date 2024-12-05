@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Banco de Sangue</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../assets/logo.png" alt="Logo" class="logo">
+                <h2>Banco de Sangue</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="donors">
+                    <i class="fas fa-users"></i>
+                    <span>Doadores</span>
+                </a>
+                <a href="#" class="nav-item" data-page="appointments">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Agendamentos</span>
+                </a>
+                <a href="#" class="nav-item" data-page="inventory">
+                    <i class="fas fa-tint"></i>
+                    <span>Estoque</span>
+                </a>
+                <a href="#" class="nav-item" data-page="campaigns">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Campanhas</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Pesquisar...">
+                </div>
+                <div class="user-info">
+                    <span id="userName">Admin</span>
+                    <img src="../assets/avatar.png" alt="User Avatar" class="avatar">
+                </div>
+            </header>
+
+            <!-- Dashboard Pages -->
+            <div class="dashboard-pages">
+                <!-- Overview Page -->
+                <div class="page active" id="overview">
+                    <h1>Visão Geral</h1>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total de Doadores</h3>
+                                <p id="totalDonors">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Agendamentos Hoje</h3>
+                                <p id="todayAppointments">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Doações este Mês</h3>
+                                <p id="monthlyDonations">0</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Campanhas Ativas</h3>
+                                <p id="activeCampaigns">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Distribuição por Tipo Sanguíneo</h3>
+                            <canvas id="bloodTypeChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Doações por Mês</h3>
+                            <canvas id="donationsChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity">
+                        <h3>Atividades Recentes</h3>
+                        <div class="activity-list" id="activityList">
+                            <!-- Activities will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages will be added dynamically -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- App Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/donors.js"></script>
+    <script src="../js/appointments.js"></script>
+    <script src="../js/inventory.js"></script>
+</body>
+</html>
