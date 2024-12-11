@@ -3,201 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Banco de Sangue</title>
-    <link rel="stylesheet" href="../assets/css/styles.css">
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <title>Redirecionando... - Banco de Sangue</title>
+    <style>
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <div class="container header-content">
-            <h1>Banco de Sangue</h1>
-            <nav>
-                <ul>
-                    <li><a href="#perfil">Meu Perfil</a></li>
-                    <li><a href="#doacoes">Minhas Doações</a></li>
-                    <li><a href="#recompensas">Recompensas</a></li>
-                    <li><a href="#" id="logout">Sair</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <main class="dashboard-container">
-        <div class="welcome-section">
-            <h2>Bem-vindo(a), <span id="userName">Usuário</span>!</h2>
-            <p>Tipo Sanguíneo: <span id="bloodType">A+</span></p>
-            <p>Pontos: <span id="userPoints">0</span></p>
-        </div>
-
-        <section id="perfil" class="dashboard-section">
-            <h3>Meu Perfil</h3>
-            <div class="profile-info">
-                <form id="profileForm">
-                    <div class="form-group">
-                        <label for="nome">Nome</label>
-                        <input type="text" id="nome" name="nome" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="tipo_sanguineo">Tipo Sanguíneo</label>
-                        <select id="tipo_sanguineo" name="tipo_sanguineo" required>
-                            <option value="A+">A+</option>
-                            <option value="A-">A-</option>
-                            <option value="B+">B+</option>
-                            <option value="B-">B-</option>
-                            <option value="AB+">AB+</option>
-                            <option value="AB-">AB-</option>
-                            <option value="O+">O+</option>
-                            <option value="O-">O-</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-primary">Atualizar Perfil</button>
-                </form>
-            </div>
-        </section>
-
-        <section id="doacoes" class="dashboard-section">
-            <h3>Minhas Doações</h3>
-            <div class="donations-list">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Local</th>
-                            <th>Pontos</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="donationsList">
-                        <!-- Preenchido via JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn-primary" onclick="agendarDoacao()">Agendar Nova Doação</button>
-        </section>
-
-        <section id="recompensas" class="dashboard-section">
-            <h3>Recompensas Disponíveis</h3>
-            <div class="rewards-grid" id="rewardsList">
-                <!-- Preenchido via JavaScript -->
-            </div>
-        </section>
-    </main>
-
-    <div id="error-message" class="message error" style="display: none;"></div>
-    <div id="success-message" class="message success" style="display: none;"></div>
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Redirecionando...</p>
+    </div>
 
     <script src="../assets/js/api.js"></script>
     <script>
-        // Verificar autenticação
-        if (!auth.isAuthenticated()) {
-            window.location.href = 'login.html';
-        }
-
-        // Carregar dados do usuário
-        async function loadUserData() {
+        // Verificar autenticação e tipo de usuário
+        async function checkUserTypeAndRedirect() {
             try {
-                const userData = await doadores.getProfile();
-                document.getElementById('userName').textContent = userData.nome;
-                document.getElementById('bloodType').textContent = userData.tipo_sanguineo;
-                document.getElementById('userPoints').textContent = userData.pontos;
+                if (!auth.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Verificar tipo de usuário
+                const response = await fetch('/api/users/type', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao verificar tipo de usuário');
+                }
+
+                const data = await response.json();
                 
-                // Preencher formulário
-                document.getElementById('nome').value = userData.nome;
-                document.getElementById('email').value = userData.email;
-                document.getElementById('tipo_sanguineo').value = userData.tipo_sanguineo;
+                // Redirecionar baseado no tipo
+                if (data.type === 'admin') {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'doador-dashboard.html';
+                }
             } catch (error) {
-                showError('Erro ao carregar dados do usuário');
+                console.error('Erro:', error);
+                window.location.href = 'login.html';
             }
         }
 
-        // Atualizar perfil
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                const formData = {
-                    nome: document.getElementById('nome').value,
-                    tipo_sanguineo: document.getElementById('tipo_sanguineo').value
-                };
-                await doadores.updateProfile(formData);
-                showSuccess('Perfil atualizado com sucesso!');
-                loadUserData();
-            } catch (error) {
-                showError('Erro ao atualizar perfil');
-            }
-        });
-
-        // Carregar doações
-        async function loadDonations() {
-            try {
-                const donations = await fetch('/api/donations/history').then(res => res.json());
-                const tbody = document.getElementById('donationsList');
-                tbody.innerHTML = donations.map(d => `
-                    <tr>
-                        <td>${new Date(d.data_doacao).toLocaleDateString()}</td>
-                        <td>${d.local}</td>
-                        <td>${d.pontos}</td>
-                        <td>${d.status}</td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                showError('Erro ao carregar histórico de doações');
-            }
-        }
-
-        // Carregar recompensas
-        async function loadRewards() {
-            try {
-                const rewards = await recompensas.listar();
-                const rewardsGrid = document.getElementById('rewardsList');
-                rewardsGrid.innerHTML = rewards.map(r => `
-                    <div class="reward-card">
-                        <h4>${r.titulo}</h4>
-                        <p>${r.descricao}</p>
-                        <p class="points-needed">${r.pontos_necessarios} pontos</p>
-                        <button onclick="resgatar(${r.id})" 
-                                class="btn-secondary"
-                                ${r.pontos_necessarios > userData.pontos ? 'disabled' : ''}>
-                            Resgatar
-                        </button>
-                    </div>
-                `).join('');
-            } catch (error) {
-                showError('Erro ao carregar recompensas');
-            }
-        }
-
-        // Resgatar recompensa
-        async function resgatar(recompensaId) {
-            try {
-                await recompensas.resgatar(recompensaId);
-                showSuccess('Recompensa resgatada com sucesso!');
-                loadUserData();
-                loadRewards();
-            } catch (error) {
-                showError('Erro ao resgatar recompensa');
-            }
-        }
-
-        // Agendar doação
-        function agendarDoacao() {
-            // Implementar modal ou redirecionamento para agendamento
-            alert('Funcionalidade de agendamento em desenvolvimento');
-        }
-
-        // Logout
-        document.getElementById('logout').addEventListener('click', (e) => {
-            e.preventDefault();
-            auth.logout();
-        });
-
-        // Carregar dados iniciais
-        loadUserData();
-        loadDonations();
-        loadRewards();
+        // Verificar tipo de usuário ao carregar
+        checkUserTypeAndRedirect();
     </script>
 </body>
 </html>
