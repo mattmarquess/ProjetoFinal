@@ -41,16 +41,34 @@
                 await auth.login(email, senha);
                 showSuccess('Login realizado com sucesso!');
                 setTimeout(() => {
-                    window.location.href = '../index.html';
+                    window.location.href = 'dashboard.html';
                 }, 1000);
             } catch (error) {
                 showError('Email ou senha inválidos');
             }
         }
 
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
         // Verificar se já está logado
         if (auth.isAuthenticated()) {
-            window.location.href = '../index.html';
+            window.location.href = 'dashboard.html';
         }
     </script>
 </body>
