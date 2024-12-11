@@ -1,0 +1,25 @@
+# Dependências
+node_modules/
+package-lock.json
+
+# Arquivos de ambiente
+.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# IDEs e editores
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Arquivos de build
+dist/
+build/

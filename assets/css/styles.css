@@ -1,0 +1,167 @@
+/* Reset */
+body, h1, h2, p, ul, li, a {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+}
+
+/* Layout Geral */
+body {
+  color: #333;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+header {
+  background-color: #d32f2f;
+  color: white;
+  padding: 20px 0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  font-size: 24px;
+}
+
+header ul {
+  display: flex;
+  gap: 20px;
+}
+
+header a {
+  color: white;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+header a:hover {
+  color: #ffcccb;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  background: linear-gradient(135deg, #d32f2f, #f44336);
+  color: white;
+  padding: 100px 20px;
+}
+
+.hero-content {
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+.hero h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.btn-primary {
+  display: inline-block;
+  background-color: white;
+  color: #d32f2f;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 20px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #ffcccb;
+  transform: scale(1.05);
+}
+
+/* Seções */
+.section {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.section h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.section p, .section ul {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.section ul {
+  margin-top: 10px;
+  text-align: left;
+  display: inline-block;
+}
+
+/* Mensagens de feedback */
+.message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: 500;
+    z-index: 1000;
+    animation: slideIn 0.3s ease-in-out;
+}
+
+.message.success {
+    background-color: #4CAF50;
+}
+
+.message.error {
+    background-color: #f44336;
+}
+
+.message.info {
+    background-color: #2196F3;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Footer */
+footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
