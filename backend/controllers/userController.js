@@ -1,176 +1,176 @@
-const pool = require('../config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { sendEmail } = require('../config/email');
+const pool = require('../config/db');
 
 const userController = {
     // Registro de usuário
-    register: async (req, res) => {
+    async register(req, res) {
+        const { nome, email, senha, tipo_sanguineo } = req.body;
+
         try {
-            const { nome, email, senha, tipo_sanguineo } = req.body;
-            
-            // Verifica se usuário já existe
-            const userExists = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+            // Verificar se o email já existe
+            const userExists = await pool.query(
+                'SELECT * FROM usuarios WHERE email = $1',
+                [email]
+            );
+
             if (userExists.rows.length > 0) {
                 return res.status(400).json({ message: 'Email já cadastrado' });
             }
 
-            // Cria hash da senha
+            // Criptografar a senha
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(senha, salt);
 
-            // Cria token de confirmação
-            const confirmationToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '24h' });
+            // Iniciar uma transação
+            const client = await pool.connect();
+            try {
+                await client.query('BEGIN');
 
-            // Insere usuário
-            const newUser = await pool.query(
-                'INSERT INTO usuarios (nome, email, senha, token_confirmacao) VALUES ($1, $2, $3, $4) RETURNING id',
-                [nome, email, hashedPassword, confirmationToken]
-            );
+                // Inserir usuário
+                const userResult = await client.query(
+                    `INSERT INTO usuarios (nome, email, senha, tipo_usuario)
+                     VALUES ($1, $2, $3, 'usuario')
+                     RETURNING id, nome, email, tipo_usuario`,
+                    [nome, email, hashedPassword]
+                );
 
-            // Insere dados do doador
-            await pool.query(
-                'INSERT INTO doadores (usuario_id, tipo_sanguineo) VALUES ($1, $2)',
-                [newUser.rows[0].id, tipo_sanguineo]
-            );
+                // Inserir doador
+                await client.query(
+                    `INSERT INTO doadores (usuario_id, tipo_sanguineo)
+                     VALUES ($1, $2)`,
+                    [userResult.rows[0].id, tipo_sanguineo]
+                );
 
-            // Envia email de confirmação
-            await sendEmail(
-                email,
-                'Confirme seu cadastro - Banco de Sangue',
-                'Clique no link para confirmar seu cadastro',
-                `<p>Olá ${nome},</p>
-                <p>Clique <a href="${process.env.FRONTEND_URL}/confirmar/${confirmationToken}">aqui</a> para confirmar seu email.</p>`
-            );
+                await client.query('COMMIT');
 
-            res.status(201).json({ message: 'Usuário cadastrado com sucesso!' });
+                // Gerar token JWT
+                const token = jwt.sign(
+                    { id: userResult.rows[0].id },
+                    process.env.JWT_SECRET,
+                    { expiresIn: '1d' }
+                );
+
+                res.status(201).json({
+                    token,
+                    user: userResult.rows[0]
+                });
+            } catch (err) {
+                await client.query('ROLLBACK');
+                throw err;
+            } finally {
+                client.release();
+            }
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Erro ao cadastrar usuário' });
+            console.error('Erro no registro:', error);
+            res.status(500).json({ message: 'Erro no servidor' });
         }
     },
 
-    // Login
-    login: async (req, res) => {
+    // Login de usuário
+    async login(req, res) {
+        const { email, senha } = req.body;
+
         try {
-            const { email, senha } = req.body;
+            // Buscar usuário
+            const result = await pool.query(
+                `SELECT u.*, d.tipo_sanguineo, d.pontos
+                 FROM usuarios u
+                 LEFT JOIN doadores d ON u.id = d.usuario_id
+                 WHERE u.email = $1`,
+                [email]
+            );
 
-            // Busca usuário
-            const user = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
-            if (user.rows.length === 0) {
-                return res.status(400).json({ message: 'Email ou senha inválidos' });
+            const user = result.rows[0];
+
+            if (!user) {
+                return res.status(401).json({ message: 'Email ou senha inválidos' });
             }
 
-            // Verifica senha
-            const validPassword = await bcrypt.compare(senha, user.rows[0].senha);
+            // Verificar senha
+            const validPassword = await bcrypt.compare(senha, user.senha);
             if (!validPassword) {
-                return res.status(400).json({ message: 'Email ou senha inválidos' });
+                return res.status(401).json({ message: 'Email ou senha inválidos' });
             }
 
-            // Verifica se email foi confirmado
-            if (!user.rows[0].email_confirmado) {
-                return res.status(400).json({ message: 'Por favor, confirme seu email antes de fazer login' });
-            }
-
-            // Gera token JWT
+            // Gerar token JWT
             const token = jwt.sign(
-                { id: user.rows[0].id, tipo_usuario: user.rows[0].tipo_usuario },
+                { id: user.id },
                 process.env.JWT_SECRET,
                 { expiresIn: '1d' }
             );
 
-            res.json({ token, tipo_usuario: user.rows[0].tipo_usuario });
+            // Remover senha do objeto do usuário
+            delete user.senha;
+
+            res.json({
+                token,
+                user
+            });
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Erro ao fazer login' });
+            console.error('Erro no login:', error);
+            res.status(500).json({ message: 'Erro no servidor' });
         }
     },
 
-    // Confirmar email
-    confirmEmail: async (req, res) => {
+    // Obter perfil do usuário
+    async getProfile(req, res) {
         try {
-            const { token } = req.params;
-
-            const user = await pool.query(
-                'UPDATE usuarios SET email_confirmado = true WHERE token_confirmacao = $1 RETURNING email',
-                [token]
+            const result = await pool.query(
+                `SELECT u.id, u.nome, u.email, u.tipo_usuario,
+                        d.tipo_sanguineo, d.pontos, d.ultima_doacao
+                 FROM usuarios u
+                 LEFT JOIN doadores d ON u.id = d.usuario_id
+                 WHERE u.id = $1`,
+                [req.user.id]
             );
 
-            if (user.rows.length === 0) {
-                return res.status(400).json({ message: 'Token inválido ou expirado' });
+            if (result.rows.length === 0) {
+                return res.status(404).json({ message: 'Usuário não encontrado' });
             }
 
-            res.json({ message: 'Email confirmado com sucesso!' });
+            res.json(result.rows[0]);
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Erro ao confirmar email' });
+            console.error('Erro ao buscar perfil:', error);
+            res.status(500).json({ message: 'Erro no servidor' });
         }
     },
 
-    // Solicitar recuperação de senha
-    requestPasswordReset: async (req, res) => {
+    // Atualizar perfil do usuário
+    async updateProfile(req, res) {
+        const { nome, tipo_sanguineo } = req.body;
+
         try {
-            const { email } = req.body;
+            const client = await pool.connect();
+            try {
+                await client.query('BEGIN');
 
-            // Verifica se o usuário existe
-            const user = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
-            if (user.rows.length === 0) {
-                return res.status(404).json({ message: 'Email não encontrado' });
+                // Atualizar usuário
+                await client.query(
+                    'UPDATE usuarios SET nome = $1 WHERE id = $2',
+                    [nome, req.user.id]
+                );
+
+                // Atualizar doador
+                if (tipo_sanguineo) {
+                    await client.query(
+                        'UPDATE doadores SET tipo_sanguineo = $1 WHERE usuario_id = $2',
+                        [tipo_sanguineo, req.user.id]
+                    );
+                }
+
+                await client.query('COMMIT');
+
+                res.json({ message: 'Perfil atualizado com sucesso' });
+            } catch (err) {
+                await client.query('ROLLBACK');
+                throw err;
+            } finally {
+                client.release();
             }
-
-            // Gera token de recuperação
-            const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-            // Atualiza o token no banco
-            await pool.query(
-                'UPDATE usuarios SET reset_token = $1 WHERE email = $2',
-                [resetToken, email]
-            );
-
-            // Envia email com o token
-            await sendEmail(
-                email,
-                'Recuperação de Senha - Banco de Sangue',
-                'Use o código abaixo para recuperar sua senha',
-                `<p>Olá,</p>
-                <p>Você solicitou a recuperação de senha. Use o código abaixo para redefinir sua senha:</p>
-                <h2 style="color: #C30000;">${resetToken.slice(-6)}</h2>
-                <p>Este código expira em 1 hora.</p>
-                <p>Se você não solicitou esta recuperação, ignore este email.</p>`
-            );
-
-            res.json({ message: 'Email de recuperação enviado com sucesso!' });
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Erro ao processar recuperação de senha' });
-        }
-    },
-
-    // Redefinir senha
-    resetPassword: async (req, res) => {
-        try {
-            const { token, newPassword } = req.body;
-
-            // Verifica o token
-            const user = await pool.query('SELECT * FROM usuarios WHERE reset_token = $1', [token]);
-            if (user.rows.length === 0) {
-                return res.status(400).json({ message: 'Token inválido ou expirado' });
-            }
-
-            // Cria hash da nova senha
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-            // Atualiza a senha e remove o token
-            await pool.query(
-                'UPDATE usuarios SET senha = $1, reset_token = NULL WHERE reset_token = $2',
-                [hashedPassword, token]
-            );
-
-            res.json({ message: 'Senha atualizada com sucesso!' });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Erro ao redefinir senha' });
+            console.error('Erro ao atualizar perfil:', error);
+            res.status(500).json({ message: 'Erro no servidor' });
         }
     }
 };
